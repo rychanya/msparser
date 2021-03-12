@@ -8,20 +8,6 @@ from selenium.webdriver.support.ui import WebDriverWait
 
 from .model import QA
 
-# def stat_parser(driver: WebDriver):
-#     header: WebElement = WebDriverWait(driver, 10).until(
-#         EC.visibility_of_element_located(
-#             (By.XPATH, '//div[@class="wtq-header-main"][@wtq-elem="header-stat-ass"]')
-#         )
-#     )
-#     passed: WebElement = header.find_element_by_class_name(
-#         "wtq-stat-passed"
-#     ).find_element_by_class_name("wtq-stat-value")
-#     failed: WebElement = header.find_element_by_class_name(
-#         "wtq-stat-failed"
-#     ).find_element_by_class_name("wtq-stat-value")
-#     return (passed.text, failed.text)
-
 
 class QAIter:
     def __init__(self, driver: WebDriver) -> None:
@@ -43,15 +29,15 @@ class QAIter:
     def __next__(self):
 
         if self.curent is not None:
-            WebDriverWait(self.curent, 10).until(
+            WebDriverWait(self.curent, 30).until(
                 lambda d: self.curent.value_of_css_property("visibility") == "hidden"
             )
 
-        body: WebElement = WebDriverWait(self.driver, 10).until(
+        body: WebElement = WebDriverWait(self.driver, 30).until(
             EC.visibility_of_element_located((By.CLASS_NAME, "wtq-body"))
         )
         final: WebElement = body.find_element_by_class_name("wtq-final")
-        header: WebElement = WebDriverWait(self.driver, 10).until(
+        header: WebElement = WebDriverWait(self.driver, 30).until(
             EC.visibility_of_element_located(
                 (
                     By.XPATH,
@@ -69,7 +55,7 @@ class QAIter:
             self._agregate_last_qa(passed)
             raise StopIteration
 
-        questions = WebDriverWait(self.driver, 10).until(
+        questions = WebDriverWait(self.driver, 30).until(
             EC.presence_of_all_elements_located((By.CLASS_NAME, "wtq-question"))
         )
         question = [q for q in questions if q.is_displayed()][0]
@@ -78,6 +64,7 @@ class QAIter:
         )
         question_text = question.find_element_by_class_name("wtq-q-question-text").text
         question_type = question.find_element_by_class_name("wtq-q-instruction").text
+        assert question_text != ""
 
         qa = QA.load(
             question=question_text,
@@ -110,10 +97,10 @@ class QAIter:
                 if ans.text in self.last_answer:
                     ans.click()
 
-        btn: WebElement = WebDriverWait(question, 10).until(
+        btn: WebElement = WebDriverWait(question, 30).until(
             EC.visibility_of_element_located((By.CLASS_NAME, "wtq-btn-submit"))
         )
-        WebDriverWait(btn, 10).until(
+        WebDriverWait(btn, 30).until(
             lambda d: "wtq-btn-disabled" not in btn.get_attribute("class")
         )
         btn.click()

@@ -1,9 +1,8 @@
 import typer
-from selenium import webdriver
-from selenium.webdriver.chrome.options import Options
-
 from parsers import QAIter
 from parsers.utils import Login, Run
+from selenium import webdriver
+from selenium.webdriver.chrome.options import Options
 
 urls = [
     "https://mstudy.mvideo.ru/_ems/assessment/6933527863096261495",
@@ -15,8 +14,8 @@ urls = [
 
 
 def main(user: str, password: str, n: int = 10, headless: bool = True):
-    for _ in range(1, n + 1):
-        print(f"start {n} wave")
+    for wave_count in range(1, n + 1):
+        print(f"start {wave_count} wave")
         try:
             options = Options()
             options.headless = headless

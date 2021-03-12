@@ -14,16 +14,16 @@ class Run:
     def __enter__(self):
         print(f"start test {self.url}")
         self.parent_window = self.driver.current_window_handle
-        main = WebDriverWait(self.driver, 10).until(
+        main = WebDriverWait(self.driver, 30).until(
             EC.visibility_of_element_located((By.CLASS_NAME, "v-main"))
         )
-        subtitle = WebDriverWait(main, 10).until(
+        subtitle = WebDriverWait(main, 30).until(
             EC.visibility_of_element_located((By.CLASS_NAME, "v-list-item__subtitle"))
         )
-        button = WebDriverWait(subtitle, 10).until(
+        button = WebDriverWait(subtitle, 30).until(
             EC.visibility_of_element_located((By.TAG_NAME, "button"))
         )
-        WebDriverWait(button, 10).until(lambda d: button.text == "ПРОДОЛЖИТЬ")
+        WebDriverWait(button, 30).until(lambda d: button.text == "ПРОДОЛЖИТЬ")
         button.click()
         self.driver.switch_to.window(self.driver.window_handles[-1])
         print("switch to test window")

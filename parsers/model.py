@@ -4,8 +4,9 @@ from typing import Iterable, List, Tuple, Union
 
 from bson import ObjectId
 from openpyxl import Workbook
-from pydantic import BaseModel, Field
 from pymongo import MongoClient
+
+from pydantic import BaseModel, Field
 
 client = MongoClient()
 db = client.get_database("qa")
@@ -59,9 +60,11 @@ class QA(BaseModel):
         data["_id"] = str(data["_id"])
         qa = QA(**data)
         assert qa.id is not None
+        assert qa.question
         return qa
 
     def set_correct_answer(self, answer: Union[str, Tuple[str]]):
+        assert self.question
         self.correct = answer
         res = collection.update_one(
             {"_id": ObjectId(self.id)}, {"$set": {"correct": answer}}
@@ -69,6 +72,7 @@ class QA(BaseModel):
         assert res.matched_count == 1
 
     def add_incorrect_answer(self, answer: Union[str, Tuple[str]]):
+        assert self.question
         self.incorrect.append(answer)
         res = collection.update_one(
             {"_id": ObjectId(self.id)}, {"$addToSet": {"incorrect": answer}}
