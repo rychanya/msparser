@@ -1,21 +1,22 @@
+import json
+from itertools import cycle
+
 import typer
-from parsers import QAIter
-from parsers.utils import Login, Run
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
 
-urls = [
-    "https://mstudy.mvideo.ru/_ems/assessment/6933527863096261495",
-    "https://mstudy.mvideo.ru/_ems/assessment/6933533644755699520",
-    "https://mstudy.mvideo.ru/_ems/assessment/6933536973668776172",
-    "https://mstudy.mvideo.ru/_ems/assessment/6933542010422430449",
-    "https://mstudy.mvideo.ru/_ems/assessment/6933549990634539188",
-]
+from parsers import QAIter
+from parsers.utils import Login, Run
 
 
-def main(user: str, password: str, n: int = 10, headless: bool = True):
-    for wave_count in range(1, n + 1):
-        print(f"start {wave_count} wave")
+def main(headless: bool = True):
+    with open("settings.json", mode="r") as file:
+        data = json.load(file)
+        urls = data["urls"]
+        users = data["users"]
+        user_cycle = cycle(users)
+    user, password = next(user_cycle).values()
+    while True:
         try:
             options = Options()
             options.headless = headless
@@ -29,8 +30,9 @@ def main(user: str, password: str, n: int = 10, headless: bool = True):
                         for i in qa:
                             pass
         except Exception as error:
-            driver.quit
             print(error)
+        finally:
+            driver.quit()
 
 
 if __name__ == "__main__":
