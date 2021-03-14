@@ -97,7 +97,7 @@ def import_to_xl():
         dimensions.width = 50
         dimensions.collapsed = True
     ws.append(["Вопрос", "Ответы", "Правильный"])
-    for row, el in enumerate(data, start=1):
+    for row, el in enumerate(data, start=2):
         correct = el["correct"]
         if type(correct) != str:
             correct = ", ".join(correct)
@@ -113,5 +113,29 @@ def import_to_xl():
     wb.save("out.xlsx")
 
 
+def check_db():
+    data = collection.find()
+    for el in data:
+        incorrect = el.get("incorrect", [])
+        if "correct" not in el:
+            answers = el["answers"]
+            if el["type"] == "Выберите один правильный вариант":
+                if len(incorrect) >= len(answers):
+                    print(el)
+            else:
+                if len(incorrect) >= len(comb(answers)):
+                    print(el)
+            continue
+        correct = el["correct"]
+
+        if type(correct) != str:
+            correct = set(correct)
+            incorrect = list([set(a) for a in incorrect])
+
+        if correct in incorrect:
+            print(el)
+
+
 if __name__ == "__main__":
-    import_to_xl()
+    # import_to_xl()
+    check_db()
