@@ -85,34 +85,6 @@ def comb(i: Iterable):
     return chain(*[combinations(i, n) for n in range(1, len(i) + 1)])
 
 
-def import_to_xl():
-    alignment = Alignment(horizontal="justify", vertical="justify", wrap_text=True)
-    st = NamedStyle(name="st", alignment=alignment,)
-    data = collection.find({"correct": {"$exists": True}})
-    wb = Workbook()
-    ws: worksheet = wb.active
-    ws.title = "Cats"
-    for col in "ABC":
-        dimensions = ws.column_dimensions[col]
-        dimensions.width = 50
-        dimensions.collapsed = True
-    ws.append(["Вопрос", "Ответы", "Правильный"])
-    for row, el in enumerate(data, start=2):
-        correct = el["correct"]
-        if type(correct) != str:
-            correct = ", ".join(correct)
-
-        cel1 = ws.cell(row, 1, el["question"])
-        cel1.style = st
-
-        cel2 = ws.cell(row, 2, correct)
-        cel2.style = st
-
-        cel3 = ws.cell(row, 3, "\n".join(el["answers"]))
-        cel3.style = st
-    wb.save("out.xlsx")
-
-
 def check_db():
     data = collection.find()
     for el in data:
@@ -137,5 +109,4 @@ def check_db():
 
 
 if __name__ == "__main__":
-    # import_to_xl()
     check_db()

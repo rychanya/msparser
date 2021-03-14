@@ -5,8 +5,7 @@ import typer
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
 
-from parsers import QAIter
-from parsers.utils import Login, Run
+from parsers import Login, QAIter, Run
 
 
 def main(headless: bool = True):

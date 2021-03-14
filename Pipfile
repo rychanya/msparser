@@ -9,8 +9,8 @@ verify_ssl = true
 selenium = "*"
 pymongo = "*"
 pydantic = "*"
-openpyxl = "*"
 typer = "*"
+xlsxwriter = "*"
 
 [requires]
 python_version = "3.9"
