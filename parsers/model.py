@@ -3,11 +3,9 @@ from random import choice
 from typing import Iterable, List, Tuple, Union
 
 from bson import ObjectId
-from openpyxl import Workbook
-from openpyxl.styles import Alignment, NamedStyle
-from openpyxl.worksheet import worksheet
-from pydantic import BaseModel, Field
 from pymongo import MongoClient
+
+from pydantic import BaseModel, Field
 
 client = MongoClient()
 db = client.get_database("qa")

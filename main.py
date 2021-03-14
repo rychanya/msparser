@@ -2,10 +2,9 @@ import json
 from itertools import cycle
 
 import typer
+from parsers import Login, QAIter, Run
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
-
-from parsers import Login, QAIter, Run
 
 
 def main(headless: bool = True):
