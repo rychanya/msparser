@@ -3,9 +3,8 @@ from random import choice
 from typing import Iterable, List, Tuple, Union
 
 from bson import ObjectId
-from pymongo import MongoClient
-
 from pydantic import BaseModel, Field
+from pymongo import TEXT, MongoClient
 
 client = MongoClient()
 db = client.get_database("qa")
@@ -35,12 +34,16 @@ class QA(BaseModel):
                 incorrect = list([set(ans) for ans in self.incorrect])
                 answers = [ans for ans in answers if set(ans) not in incorrect]
             return choice(list(answers))
+        elif (
+            self.type
+            == "Перетащите варианты так, чтобы они оказались в правильном порядке"
+        ):
+            return self.answers.copy()
 
     @staticmethod
     def load(question: str, answers: List[str], type: list):
-        data = collection.find_one(
-            {"question": question, "answers": {"$all": answers}, "type": type}
-        )
+        data = collection.find_one({"question": question, "answers": {"$all": answers}})
+        print(data)
         if data is None:
             _id = ObjectId()
             collection.insert_one(
@@ -93,7 +96,7 @@ def check_db():
                 if len(incorrect) >= len(answers):
                     print(el)
             else:
-                if len(incorrect) >= len(comb(answers)):
+                if len(incorrect) >= len(list(comb(answers))):
                     print(el)
             continue
         correct = el["correct"]
@@ -107,4 +110,5 @@ def check_db():
 
 
 if __name__ == "__main__":
+    collection.create_index([("question", TEXT)])
     check_db()

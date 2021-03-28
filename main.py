@@ -2,9 +2,10 @@ import json
 from itertools import cycle
 
 import typer
-from parsers import Login, QAIter, Run
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
+
+from parsers import Login, QAIter, Run
 
 
 def main(headless: bool = True):
@@ -13,7 +14,7 @@ def main(headless: bool = True):
         urls = data["urls"]
         users = data["users"]
         user_cycle = cycle(users)
-    user, password = next(user_cycle).values()
+
     while True:
         try:
             options = Options()
@@ -21,6 +22,11 @@ def main(headless: bool = True):
             driver = webdriver.Chrome(
                 executable_path="/home/rychanya/msparser/chromedriver", options=options
             )
+            # driver = webdriver.Remote(
+            #     command_executor="http://172.17.0.2:4444",
+            #     desired_capabilities={"browserName": 'chrome'}
+            #     )
+            user, password = next(user_cycle).values()
             with Login(user, password, driver):
                 for url in urls:
                     with Run(driver, url):

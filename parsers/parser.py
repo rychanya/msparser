@@ -1,7 +1,9 @@
+from time import sleep
 from typing import List, Optional
 
 from selenium.common.exceptions import NoSuchWindowException
 from selenium.webdriver.chrome.webdriver import WebDriver
+from selenium.webdriver.common.action_chains import ActionChains
 from selenium.webdriver.common.by import By
 from selenium.webdriver.remote.webelement import WebElement
 from selenium.webdriver.support import expected_conditions as EC
@@ -59,19 +61,25 @@ class QAIter:
         questions = WebDriverWait(self.driver, 30).until(
             EC.presence_of_all_elements_located((By.CLASS_NAME, "wtq-question"))
         )
-        question = [q for q in questions if q.is_displayed()][0]
+        try:
+            question = [q for q in questions if q.is_displayed()][0]
+        except IndexError:
+            rubric: WebElement = body.find_element_by_class_name("wtq-rubric")
+            rubric.find_element_by_class_name("wtq-btn-next").click()
+            WebDriverWait(rubric, 30).until_not(lambda d: rubric.is_displayed())
+            return
         answers: List[WebElement] = question.find_elements_by_class_name(
             "wtq-item-text-cell-main"
         )
         question_text = question.find_element_by_class_name("wtq-q-question-text").text
         question_type = question.find_element_by_class_name("wtq-q-instruction").text
         assert question_text != ""
-
         qa = QA.load(
             question=question_text,
             answers=list([a.text for a in answers]),
             type=question_type,
         )
+
         assert qa.id is not None
 
         print(qa.question)
@@ -97,6 +105,12 @@ class QAIter:
             for ans in answers:
                 if ans.text in self.last_answer:
                     ans.click()
+        elif (
+            qa.type
+            == "Перетащите варианты так, чтобы они оказались в правильном порядке"
+        ):
+            ActionChains(self.driver).drag_and_drop(answers[0], answers[1]).perform()
+            sleep(3)
 
         btn: WebElement = WebDriverWait(question, 30).until(
             EC.visibility_of_element_located((By.CLASS_NAME, "wtq-btn-submit"))
@@ -125,10 +139,13 @@ class Run:
         button = WebDriverWait(subtitle, 30).until(
             EC.visibility_of_element_located((By.TAG_NAME, "button"))
         )
-        WebDriverWait(button, 30).until(lambda d: button.text == "ПРОДОЛЖИТЬ")
+        WebDriverWait(button, 30).until(
+            lambda d: button.text in ("ПРОДОЛЖИТЬ", "НАЗНАЧИТЬ", "НАЧАТЬ")
+        )
         button.click()
-        self.driver.switch_to.window(self.driver.window_handles[-1])
-        print("switch to test window")
+        if button.text in ("ПРОДОЛЖИТЬ", "НАЧАТЬ"):
+            self.driver.switch_to.window(self.driver.window_handles[-1])
+            print("switch to test window")
 
     def __exit__(self, exc_type, exc_value, exc_traceback):
         try:
