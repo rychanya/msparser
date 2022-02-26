@@ -129,4 +129,4 @@ dmypy.json
 .pyre/
 
 out/
-settings.json
+settings*.json

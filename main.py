@@ -1,5 +1,6 @@
 import json
 from itertools import cycle
+import pathlib
 
 import typer
 from selenium import webdriver
@@ -17,15 +18,10 @@ def main(headless: bool = True):
 
     while True:
         try:
+            driver_path = pathlib.Path().resolve().joinpath("chromedriver")
             options = Options()
             options.headless = headless
-            driver = webdriver.Chrome(
-                executable_path="/home/rychanya/msparser/chromedriver", options=options
-            )
-            # driver = webdriver.Remote(
-            #     command_executor="http://172.17.0.2:4444",
-            #     desired_capabilities={"browserName": 'chrome'}
-            #     )
+            driver = webdriver.Chrome(executable_path=str(driver_path), options=options)
             user, password = next(user_cycle).values()
             with Login(user, password, driver):
                 for url in urls:
@@ -34,7 +30,9 @@ def main(headless: bool = True):
                         for i in qa:
                             pass
         except Exception as error:
+            print("*" * 10)
             print(error)
+            print(error.__traceback__)
         finally:
             driver.quit()
 

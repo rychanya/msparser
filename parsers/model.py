@@ -5,10 +5,21 @@ from typing import Iterable, List, Tuple, Union
 from bson import ObjectId
 from pydantic import BaseModel, Field
 from pymongo import TEXT, MongoClient
+import certifi
+import json
 
-client = MongoClient()
-db = client.get_database("qa")
-collection = db.get_collection("1")
+with open("settings.json", mode="r") as file:
+        data = json.load(file)
+        MONGO_USER = data["MONGO_USER"]
+        MONGO_PASSWORD = data["MONGO_PASSWORD"]
+        MONGO_DB_NAME = data["MONGO_DB_NAME"]
+
+client = MongoClient(
+    f"mongodb+srv://{MONGO_USER}:{MONGO_PASSWORD}@cluster0.ys89g.mongodb.net/{MONGO_DB_NAME}?retryWrites=true&w=majority",
+    tlsCAFile=certifi.where(),
+)
+db = client.get_database()
+collection = db.get_collection("qa_new")
 
 
 class QA(BaseModel):
@@ -110,5 +121,5 @@ def check_db():
 
 
 if __name__ == "__main__":
-    collection.create_index([("question", TEXT)])
+    # collection.create_index([("question", TEXT)])
     check_db()
